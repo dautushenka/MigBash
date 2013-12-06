@@ -1,56 +1,90 @@
 #!/usr/bin/env bash
 
-log_db='patches.db'
-sqlite=`which sqlite3`
+
+db_user='user'
+db_pass='pass'
+db_host='127.0.0.1'
+db_name='db_name'
+migration_table='tbl_migrations'
+
+patches_path='./sql/'
 date=`date '+%Y-%m-%d %H:%M:%S'`
 
-# patch_code=`cat "${PATCH}"`
-
-# START TRANSACTION;
-# INSERT INTO Test VALUES (5), (6);
-# ROLLBACK;
-
-create_log_db() {
-    ${sqlite} $1  "CREATE TABLE log (id INTEGER PRIMARY KEY, name TEXT, date TEXT, success INTEGER);"
+# check if table exists
+table_exists() {
+    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '${1}' AND table_name = '${2}';")
+    echo ${db_query} | awk '{print $2}'
 }
 
-check() {
-    ${sqlite} ${log_db} "SELECT COUNT(*) FROM log WHERE name='$1' AND success=1;"
+# create table for migrations
+create_table() {
+    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "
+    CREATE TABLE ${migration_table} (
+            id INT(10) NOT NULL AUTO_INCREMENT,
+            name CHAR(60) NULL DEFAULT NULL,
+            date CHAR(60) NULL DEFAULT NULL,
+            PRIMARY KEY (id)
+    ) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
+    ")
 }
 
-patch_success() {
-    ${sqlite} ${log_db} "INSERT INTO log (name, date, success) VALUES ('$1','$2', '$3');"
+# check whether the patch was applied or not
+is_applied() {
+    patch=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "SELECT COUNT(*) FROM ${migration_table} WHERE name = '${1}';")
+    echo ${patch} | awk '{print $2}'
 }
 
-if [ ! -f ${log_db} ]; then
-    create_log_db ${log_db}
+# apply patch
+apply_patch() {
+    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} < "${1}")
+}
+
+# log patch into migration's table
+log_patch() {
+    $(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "INSERT INTO ${migration_table} (name, date) VALUES ('${1}', '${date}');")
+}
+
+# check if provided folder exists
+folder_exists() {
+    if [ ! -d ${1} ]
+    then
+        echo 1
+    fi
+}
+
+# apply migrations
+migrate() {
+    folder_exists=$(folder_exists ${patches_path})
+    if [[ ${folder_exists} -ne 0 ]]
+    then
+        echo "Folder does not exists: '${patches_path}'"
+    else
+        for PATCH in $(ls ${patches_path})
+        do
+            patch_applied=$(is_applied "${PATCH}")
+            if [[ ${patch_applied} -ne 0 ]]
+            then
+                echo -en "${PATCH} - skipped \r\n"
+            else
+                $(apply_patch ${patches_path}${PATCH})
+                if [[ $? -ne 0 ]]
+                then
+                    echo -en '\E[47;31m'"\033[1m ${PATCH} - Failed...\033[0m \r\n"
+                else
+                    $(log_patch "${PATCH}")
+                    echo -en "\033[1;32m ${PATCH} - Ok!\033[0m\r\n"
+                fi
+            fi
+        done
+    fi
+}
+
+tbl_exists=$(table_exists ${db_name} ${migration_table})
+
+if [[ ${tbl_exists} -ne 0 ]]
+then
+    migrate
+else
+    $(create_table ${migration_table})
+    migrate
 fi
-
-get_all() {
-    for PATCH in ./*.sql
-    do
-        result=`check "${PATCH}"`
-        if [[ ${result} -ne 0 ]]
-        then
-            echo "${PATCH} - skipped"
-        else
-            `patch_success "${PATCH}" "${date}" 1`
-            # mig=`${db_do} < ${PATCH}`
-            # if [[ $? -ne 0 ]]
-            # then
-            #     echo -en '\E[47;31m'"\033[1m ${PATCH} - Failed...\033[0m \r\n"
-            # else
-            #     echo -en "\033[1;32m ${PATCH} - Ok!\033[0m\r\n"
-            #     echo "${PATCH}" >> ${mig_used}
-            # fi
-        fi
-    done
-}
-
-get_all
-
-# find_new_patches() {
-# }
-
-# apply_new_patches() {
-# }
