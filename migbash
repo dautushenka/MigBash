@@ -10,6 +10,33 @@ date=`date '+%Y-%m-%d %H:%M:%S'`
 # INSERT INTO Test VALUES (5), (6);
 # ROLLBACK;
 
+db_user='root'
+db_pass='ak3a18l'
+db_host='127.0.0.1'
+db_name='baseline'
+mig_table='wp_migrations'
+
+replace='http://baselinenews.loc/'
+subject='http://54.200.62.240/'
+
+mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${database} << MIGRATION
+
+CREATE TABLE "${mig_table}" (
+        `id` INT(10) NOT NULL AUTO_INCREMENT,
+        `name` CHAR(60) NULL DEFAULT NULL,
+        `date` CHAR(60) NULL DEFAULT NULL,
+        PRIMARY KEY (`id`)
+) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
+
+UPDATE wp_options SET option_value = replace(option_value, "${subject}", "${replace}") WHERE option_name = 'home' OR option_name = 'siteurl';
+UPDATE wp_posts SET guid = replace(guid, "${subject}", "${replace}");
+UPDATE wp_posts SET post_content = replace(post_content, "${subject}", "${replace}");
+UPDATE wp_postmeta SET meta_value = replace(meta_value, "${subject}", "${replace}");
+MIGRATION
+
+check_mig_db() {
+}
+
 create_log_db() {
     ${sqlite} $1  "CREATE TABLE log (id INTEGER PRIMARY KEY, name TEXT, date TEXT, success INTEGER);"
 }
