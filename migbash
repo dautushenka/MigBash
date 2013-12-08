@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# MigBash is the script that implements simple migrations for your database
+
 
 db_user='user'
 db_pass='pass'
