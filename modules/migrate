@@ -1,16 +1,11 @@
-#!/usr/bin/env bash
-
-# MigBash is the script that implements simple migrations for your database
-
-
 db_user='user'
 db_pass='pass'
 db_host='127.0.0.1'
 db_name='db_name'
-migration_table='tbl_migrations'
 
-patches_path='./sql/'
+migration_table='tbl_migrations'
 date=`date '+%Y-%m-%d %H:%M:%S'`
+patches_path='./sql/'
 
 # check if table exists
 table_exists() {
@@ -55,7 +50,7 @@ folder_exists() {
 }
 
 # apply migrations
-migrate() {
+start_migrate() {
     folder_exists=$(folder_exists ${patches_path})
     if [[ ${folder_exists} -ne 0 ]]
     then
@@ -81,12 +76,14 @@ migrate() {
     fi
 }
 
-tbl_exists=$(table_exists ${db_name} ${migration_table})
+migrate() {
+    tbl_exists=$(table_exists ${db_name} ${migration_table})
 
-if [[ ${tbl_exists} -ne 0 ]]
-then
-    migrate
-else
-    $(create_table ${migration_table})
-    migrate
-fi
+    if [[ ${tbl_exists} -ne 0 ]]
+    then
+       start_migrate
+    else
+       $(create_table ${migration_table})
+       start_migrate
+    fi
+}
