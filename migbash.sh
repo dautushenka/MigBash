@@ -10,8 +10,8 @@ migbash_modules_path='./modules/'
 
 # MigBash initialization
 init() {
-    get_module=$1
-    get_method=$2
+    module=$1
+    method=$2
     params=${@:3}
     if [ ! -f ${migbash_cfg} ]
     then
@@ -19,23 +19,24 @@ init() {
         exit 0
     fi
 
-    if [ ! -f ${migbash_modules_path}${get_module} ]
+    if [ ! -d ${migbash_modules_path}${module} ]
     then
-        echo -en 'Module not found...\r\n'
+        if [ ! -f ${migbash_modules_path}${module} ]
+        then
+            echo -en 'Module not found...\r\n'
+        else
+            . ${migbash_modules_path}${module}
+            ${method} ${params}
+        fi
     else
-        . ${migbash_modules_path}${get_module}
-        ${get_method} ${params}
+        for MODULE in $(ls ${migbash_modules_path}${module})
+        do
+            . ${migbash_modules_path}${module}/${MODULE}
+        done
+        ${method} ${params}
     fi
+    exit 1
 }
 
 # run init
 init $*
-#foo
-#if [[ ${module} == "" ]]
-#then
-#    "${method}"
-#else
-#    echo ${module}
-#fi
-
-#foo
