@@ -1,6 +1,7 @@
 # Backup provided database
 # Author: Alexander Kovalev
 # Dec. 16, 2013 (last updated 12/16/2013)
+# ------------------------------------------------------
 
 backup() {
     local db_user='user'
