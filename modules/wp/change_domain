@@ -1,0 +1,17 @@
+# Change domain names in wordpress database
+change_domain() {
+    local db_user='user'
+    local db_pass='pass'
+    local db_host='127.0.0.1'
+    local db_name='db_name'
+
+    local replace='http://bashnews.loc/'
+    local subject='http://154.210.72.140/'
+
+    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} << WP_OPTIONS
+    UPDATE wp_options SET option_value = replace(option_value, "${subject}", "${replace}") WHERE option_name = 'home' OR option_name = 'siteurl';
+    UPDATE wp_posts SET guid = replace(guid, "${subject}", "${replace}");
+    UPDATE wp_posts SET post_content = replace(post_content, "${subject}", "${replace}");
+    UPDATE wp_postmeta SET meta_value = replace(meta_value, "${subject}", "${replace}");
+    WP_OPTIONS
+}

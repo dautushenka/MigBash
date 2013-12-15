@@ -1,0 +1,11 @@
+# Backup provided database
+backup() {
+    local db_user='user'
+    local db_pass='pass'
+    local db_host='127.0.0.1'
+    local db_name=$1
+    local name=${db_name}"_$(date '+%F_%H%M%S')"
+    local path="/path/to/result/backup"
+
+    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
+}

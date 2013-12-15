@@ -1,11 +1,4 @@
-db_user='user'
-db_pass='pass'
-db_host='127.0.0.1'
-db_name='db_name'
-
-migration_table='tbl_migrations'
-date=`date '+%Y-%m-%d %H:%M:%S'`
-patches_path='./sql/'
+# migrate - implements simple migrations for your database
 
 # check if table exists
 table_exists() {
@@ -77,6 +70,15 @@ start_migrate() {
 }
 
 migrate() {
+    local db_user='user'
+    local db_pass='pass'
+    local db_host='127.0.0.1'
+    local db_name='db_name'
+
+    local migration_table='tbl_migrations'
+    local date=`date '+%Y-%m-%d %H:%M:%S'`
+    local patches_path='/home/user/path/to/sql/patches/'
+
     local tbl_exists=$(table_exists ${db_name} ${migration_table})
 
     if [[ ${tbl_exists} -ne 0 ]]
