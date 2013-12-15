@@ -3,6 +3,7 @@
 # Dec. 16, 2013 (last updated 12/16/2013)
 # ------------------------------------------------------
 
+# backup database
 backup() {
     local db_user='user'
     local db_pass='pass'
@@ -12,4 +13,9 @@ backup() {
     local path="/path/to/result/backup"
 
     mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
+}
+
+# show help info
+backup_help() {
+    echo -en "backup \t - Backup provided database\r\n"
 }

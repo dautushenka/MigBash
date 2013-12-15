@@ -3,6 +3,7 @@
 # Dec. 16, 2013 (last updated 12/16/2013)
 # ------------------------------------------------------
 
+# change wp domain
 change_domain() {
     local db_user='user'
     local db_pass='pass'
@@ -12,10 +13,15 @@ change_domain() {
     local replace='http://bashnews.loc/'
     local subject='http://154.210.72.140/'
 
-    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} << WP_OPTIONS
+    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<WP_OPTIONS
     UPDATE wp_options SET option_value = replace(option_value, "${subject}", "${replace}") WHERE option_name = 'home' OR option_name = 'siteurl';
     UPDATE wp_posts SET guid = replace(guid, "${subject}", "${replace}");
     UPDATE wp_posts SET post_content = replace(post_content, "${subject}", "${replace}");
     UPDATE wp_postmeta SET meta_value = replace(meta_value, "${subject}", "${replace}");
-    WP_OPTIONS
+WP_OPTIONS
+}
+
+# show help info
+change_domain_help() {
+    echo -en "change_domain \t - Module to change domain names in wordpress database\r\n"
 }

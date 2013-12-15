@@ -23,6 +23,8 @@ init() {
     then
         echo 'Config file not found...'
         exit 0
+    else
+        . ${migbash_cfg}
     fi
 
     if [ ! -d ${migbash_modules_path}${module} ]
