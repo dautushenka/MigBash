@@ -9,13 +9,13 @@ patches_path='./sql/'
 
 # check if table exists
 table_exists() {
-    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '${1}' AND table_name = '${2}';")
+    local db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '${1}' AND table_name = '${2}';")
     echo ${db_query} | awk '{print $2}'
 }
 
 # create table for migrations
 create_table() {
-    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "
+    local db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "
     CREATE TABLE ${migration_table} (
             id INT(10) NOT NULL AUTO_INCREMENT,
             name CHAR(60) NULL DEFAULT NULL,
@@ -27,13 +27,13 @@ create_table() {
 
 # check whether the patch was applied or not
 is_applied() {
-    patch=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "SELECT COUNT(*) FROM ${migration_table} WHERE name = '${1}';")
+    local patch=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -e "SELECT COUNT(*) FROM ${migration_table} WHERE name = '${1}';")
     echo ${patch} | awk '{print $2}'
 }
 
 # apply patch
 apply_patch() {
-    db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} < "${1}")
+    local db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} < "${1}")
 }
 
 # log patch into migration's table
@@ -51,14 +51,14 @@ folder_exists() {
 
 # apply migrations
 start_migrate() {
-    folder_exists=$(folder_exists ${patches_path})
+    local folder_exists=$(folder_exists ${patches_path})
     if [[ ${folder_exists} -ne 0 ]]
     then
         echo "Folder does not exists: '${patches_path}'"
     else
         for PATCH in $(ls ${patches_path})
         do
-            patch_applied=$(is_applied "${PATCH}")
+            local patch_applied=$(is_applied "${PATCH}")
             if [[ ${patch_applied} -ne 0 ]]
             then
                 echo -en "${PATCH} - skipped \r\n"
@@ -77,7 +77,7 @@ start_migrate() {
 }
 
 migrate() {
-    tbl_exists=$(table_exists ${db_name} ${migration_table})
+    local tbl_exists=$(table_exists ${db_name} ${migration_table})
 
     if [[ ${tbl_exists} -ne 0 ]]
     then
