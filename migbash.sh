@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# MigBash is the script that implements simple migrations for your database
+# MigBash is the script that manages various modules
+# for wide range of tasks
+# Author: Alexander Kovalev
+# Dec. 16, 2013 (last updated 12/16/2013)
 
 # MigBash config file
 migbash_cfg='migbash.cfg'

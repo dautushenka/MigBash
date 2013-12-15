@@ -1,4 +1,7 @@
-# Change domain names in wordpress database
+# Module to change domain names in wordpress database
+# Author: Alexander Kovalev
+# Dec. 16, 2013 (last updated 12/16/2013)
+
 change_domain() {
     local db_user='user'
     local db_pass='pass'
