@@ -9,11 +9,12 @@ backup() {
     local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
     local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
     local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
+    local db_port=$(awk -F "=" '/db_port/ {print $2}' ${settings})
     local db_name=$1
     local name=${db_name}"_$(date '+%F_%H%M%S')"
     local path=$(awk -F "=" '/path/ {print $2}' ${settings})
 
-    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
+    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
 }
 
 # restore database
@@ -22,6 +23,7 @@ restore() {
     local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
     local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
     local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
+    local db_port=$(awk -F "=" '/db_port/ {print $2}' ${settings})
     local db_name=$1
     local path=$2 # path to a dump file that is needed to be restored
 
@@ -31,7 +33,7 @@ restore() {
         exit 0
     fi
 
-    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" "${db_name}" < ${path}
+    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" "${db_name}" < ${path}
 }
 
 # show help info

@@ -1,6 +1,6 @@
 # migrate - implements simple migrations for your database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/16/2013)
+# Dec. 16, 2013 (last updated 12/17/2013)
 # ----------------------------------------------------------
 
 # check if table exists
