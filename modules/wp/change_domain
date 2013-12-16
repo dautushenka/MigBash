@@ -5,10 +5,11 @@
 
 # change wp domain
 change_domain() {
-    local db_user='user'
-    local db_pass='pass'
-    local db_host='127.0.0.1'
-    local db_name='db_name'
+    local settings=${migbash_modules_path}${module}'/wordpress.ini'
+    local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
+    local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
+    local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
+    local db_name=$(awk -F "=" '/db_name/ {print $2}' ${settings})
 
     local replace='http://bashnews.loc/'
     local subject='http://154.210.72.140/'

@@ -37,7 +37,7 @@ init() {
             ${method} ${params}
         fi
     else
-        for MODULE in $(ls ${migbash_modules_path}${module})
+        for MODULE in $(ls ${migbash_modules_path}${module} | grep -vE '*\.cfg|*\.ini')
         do
             . ${migbash_modules_path}${module}/${MODULE}
         done
