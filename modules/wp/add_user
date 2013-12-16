@@ -1,0 +1,36 @@
+# The module adds new user into wordpress database
+# Author: Alexander Kovalev
+# Dec. 16, 2013 (last updated 12/16/2013)
+# ------------------------------------------------------
+
+# add new user
+add_user() {
+    local settings=${migbash_modules_path}${module}'/wordpress.ini'
+    local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
+    local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
+    local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
+    local db_name=$(awk -F "=" '/db_name/ {print $2}' ${settings})
+
+    local user_login=$1
+    local user_pass=$2
+    local user_nicename=$3
+    local user_email=$4
+    local user_url=$5
+    local display_name=$6
+    local user_status=$7
+    local user_activation_key=$8
+    local user_registered=$9
+
+    local last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
+        INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name) 
+        VALUES (NULL, "${user_login}", MD5("${user_pass}"), "${user_nicename}", 
+                "${user_email}", "${user_url:=''}", "${user_registered:=$(date '+%F %H:%M:%S')}", 
+                "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:='${user_nicename}'}");
+        SELECT LAST_INSERT_ID();
+ADD_USER`
+}
+
+# show help info
+add_user_help() {
+    echo -en "add_user \t - The module adds new user into wordpress database\r\n"
+}

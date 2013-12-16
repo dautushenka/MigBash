@@ -11,8 +11,8 @@ change_domain() {
     local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
     local db_name=$(awk -F "=" '/db_name/ {print $2}' ${settings})
 
-    local replace='http://bashnews.loc/'
-    local subject='http://154.210.72.140/'
+    #local replace='http://bashnews.loc/'
+    #local subject='http://154.210.72.140/'
 
     mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<WP_OPTIONS
     UPDATE wp_options SET option_value = replace(option_value, "${subject}", "${replace}") WHERE option_name = 'home' OR option_name = 'siteurl';
