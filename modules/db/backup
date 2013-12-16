@@ -1,6 +1,6 @@
 # Backup provided database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/16/2013)
+# Dec. 16, 2013 (last updated 12/17/2013)
 # ------------------------------------------------------
 
 # backup database
@@ -13,20 +13,25 @@ backup() {
     local name=${db_name}"_$(date '+%F_%H%M%S')"
     local path=$(awk -F "=" '/path/ {print $2}' ${settings})
 
-    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
+    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
 }
 
 # restore database
 restore() {
-    local db_user='user'
-    local db_pass='pass'
-    local db_host='127.0.0.1'
+    local settings=${migbash_modules_path}${module}'/db.ini'
+    local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
+    local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
+    local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
     local db_name=$1
-    local name=${db_name}"_$(date '+%F_%H%M%S')"
-    local path=$2
+    local path=$2 # path to a dump file that is needed to be restored
 
-    echo -en "${db_name}\r\n"
-    echo -en "${path}\r\n"
+    if [[ ! -f ${path} ]]
+    then
+        echo -en "Please, provide the path to a dump file\r\n"
+        exit 0
+    fi
+
+    mysql --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" "${db_name}" < ${path}
 }
 
 # show help info

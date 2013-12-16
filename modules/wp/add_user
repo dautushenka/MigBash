@@ -1,6 +1,6 @@
 # The module adds new user into wordpress database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/16/2013)
+# Dec. 16, 2013 (last updated 12/17/2013)
 # ------------------------------------------------------
 
 # add new user
@@ -24,8 +24,8 @@ add_user() {
     local last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
         INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name) 
         VALUES (NULL, "${user_login}", MD5("${user_pass}"), "${user_nicename}", 
-                "${user_email}", "${user_url:=''}", "${user_registered:=$(date '+%F %H:%M:%S')}", 
-                "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:='${user_nicename}'}");
+                "${user_email}", "${user_url=''}", "${user_registered=$(date '+%F %H:%M:%S')}",
+                "${user_activation_key=''}", "${user_status='0'}", "${display_name='${user_nicename}'}");
         SELECT LAST_INSERT_ID();
 ADD_USER`
 }
