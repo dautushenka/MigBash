@@ -47,23 +47,12 @@ backup() {
         path=$(awk -F "=" '/path/ {print $2}' ${settings})
     fi
 
-#    echo ${path}/${name}.sql.gz
-#    exit 0
-
     mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path}${name}.sql.gz
-    dump_result=$?
-    if [ "${dump_result}" == "0" ]
+    if [[ -f ${path}${name}.sql.gz ]]
     then
-        whiptail --title "MigBash - db.backup" --msgbox "Something is wrong..." 8 70 --clear
-        rm -rf ${path}${name}.sql.gz
-        exit 0
+        whiptail --title "MigBash - db.backup" --msgbox "Backup: ${name}.sql.gz\nhas been successfully created\nin: ${path} " 10 70 --clear
     else
-        if [[ -f ${path}${name}.sql.gz ]]
-        then
-            whiptail --title "MigBash - db.backup" --msgbox "Backup: ${name}.sql.gz\nhas been successfully created\nin: ${path} " 10 70 --clear
-        else
-            whiptail --title "MigBash - db.backup" --msgbox "The dump couldn't be saved..." 8 70 --clear
-        fi
+        whiptail --title "MigBash - db.backup" --msgbox "The dump couldn't be saved..." 8 70 --clear
     fi
 }
 
