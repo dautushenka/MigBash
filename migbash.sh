@@ -14,8 +14,24 @@ migbash_cfg='migbash.cfg'
 # path to folder with modules
 migbash_modules_path='./modules/'
 
+migbash_gui() {
+    # check whiptail and dialog
+    read dialog_type <<< "$(which whiptail dialog 2> /dev/null)"
+
+    # use console input if whiptail and dialog weren't found
+    if [[ "$dialog_type" ]]
+    then
+        echo "${dialog_type}"
+    else
+        echo "cli"
+    fi
+}
+
+# just use whichever was found
+#"$dialog_type" --msgbox "Message displayed with $dialog" 0 0
+
 # MigBash initialization
-init() {
+migbash_init() {
     module=$1
     method=$2
     params=${@:3}
@@ -47,4 +63,4 @@ init() {
 }
 
 # run init
-init $*
+migbash_init $*

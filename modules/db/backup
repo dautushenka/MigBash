@@ -1,7 +1,20 @@
 # Backup provided database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/17/2013)
+# Dec. 16, 2013 (last updated 12/27/2013)
 # ------------------------------------------------------
+
+migbash_gui() {
+    # check whiptail and dialog
+    read dialog_type <<< "$(which whiptail dialog 2> /dev/null)"
+
+    # use console input if whiptail and dialog weren't found
+    if [[ "$dialog_type" ]]
+    then
+        echo "${dialog_type}"
+    else
+        echo 0
+    fi
+}
 
 # backup database
 backup() {
@@ -10,11 +23,48 @@ backup() {
     local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
     local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
     local db_port=$(awk -F "=" '/db_port/ {print $2}' ${settings})
-    local db_name=$1
-    local name=${db_name}"_$(date '+%F_%H%M%S')"
-    local path=$(awk -F "=" '/path/ {print $2}' ${settings})
+    local db_name=""
 
-    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path}/${name}.sql.gz
+    dialog_type=$(migbash_gui)
+    if [ ${dialog_type} != 0 ]
+    then
+        db_name=$(whiptail --inputbox "Input database name to backup" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+        if [[ ${db_name} == "" ]]
+        then
+            exit 0
+        fi
+    else
+        db_name=$1
+    fi
+
+    local name=${db_name}"_$(date '+%F_%H%M%S')"
+
+    # if path to save backup has been provided then use it
+    # otherwise use default path from settings (db/db.ini)
+    local path=$(whiptail --inputbox "Input path to save the backup" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+    if [[ ${path} == "" ]]
+    then
+        path=$(awk -F "=" '/path/ {print $2}' ${settings})
+    fi
+
+#    echo ${path}/${name}.sql.gz
+#    exit 0
+
+    mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path}${name}.sql.gz
+    dump_result=$?
+    if [ "${dump_result}" == "0" ]
+    then
+        whiptail --title "MigBash - db.backup" --msgbox "Something is wrong..." 8 70 --clear
+        rm -rf ${path}${name}.sql.gz
+        exit 0
+    else
+        if [[ -f ${path}${name}.sql.gz ]]
+        then
+            whiptail --title "MigBash - db.backup" --msgbox "Backup: ${name}.sql.gz\nhas been successfully created\nin: ${path} " 10 70 --clear
+        else
+            whiptail --title "MigBash - db.backup" --msgbox "The dump couldn't be saved..." 8 70 --clear
+        fi
+    fi
 }
 
 # restore database
