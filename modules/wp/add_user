@@ -1,7 +1,24 @@
 # The module adds new user into wordpress database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/18/2013)
+# Dec. 16, 2013 (last updated 12/28/2013)
 # ------------------------------------------------------
+
+# check whiptail and dialog
+check_gui() {
+    echo $(which whiptail dialog  2> /dev/null)
+}
+
+# check if database exists
+db_exists() {
+    local db_query=$(mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${1}';")
+    echo ${db_query} | awk '{print $2}'
+}
+
+# show message with provided text
+mb_msg() {
+    local title=$2
+    whiptail --msgbox "${1}" 8 60 --title "${title:=Notification}" --clear
+}
 
 # add new user
 add_user() {
@@ -20,18 +37,93 @@ add_user() {
     local user_status=$7
     local user_activation_key=$8
     local user_registered=$9
+    local last_insert_id
+    local database=""
 
-    local last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
-        INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name) 
-        VALUES (NULL, "${user_login}", MD5("${user_pass}"), "${user_nicename}", 
-                "${user_email}", "${user_url=''}", "${user_registered=$(date '+%F %H:%M:%S')}",
-                "${user_activation_key=''}", "${user_status='0'}", "${display_name='${user_nicename}'}");
-        SELECT LAST_INSERT_ID();
+    # check whether user wants to use interactive mode or not
+    if [[ $# != 0 ]]
+    then
+        database=$(db_exists ${db_name})
+
+        if [[ "${database}" == "" ]]
+        then
+            echo "Provided database doesn't exists..."
+            exit 0
+        else
+            last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
+                INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name)
+                VALUES (NULL, "${user_login}", MD5("${user_pass}"), "${user_nicename}",
+                        "${user_email}", "${user_url:=''}", "${user_registered:=$(date '+%F %H:%M:%S')}",
+                        "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:=${user_nicename}}");
+                SELECT LAST_INSERT_ID();
 ADD_USER`
+        fi
+    else
+        if [[ $(check_gui) ]]
+        then
+            user_login=$(whiptail --inputbox "User login:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_pass=$(whiptail --passwordbox "User password:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_nicename=$(whiptail --inputbox "User nicename:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_email=$(whiptail --inputbox "User email:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_url=$(whiptail --inputbox "User url [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            display_name=$(whiptail --inputbox "User diaplay name [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_status=$(whiptail --inputbox "User status [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_activation_key=$(whiptail --inputbox "User activation key [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            user_registered=$(whiptail --inputbox "User registration date [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+        else
+            # neither whiptail nor dialog were found
+            echo "User login:"
+            read user_login
+
+            echo "User password:"
+            read user_pass
+
+            echo "User nicename:"
+            read user_nicename
+
+            echo "User email:"
+            read user_email
+
+            echo "User url [can be empty]:"
+            read user_url
+
+            echo "User diaplay name [can be empty]:"
+            read display_name
+
+            echo "User status [can be empty]:"
+            read user_status
+
+            echo "User activation key [can be empty]:"
+            read user_activation_key
+
+            echo "User registration date [can be empty]:"
+            read user_registered
+        fi
+        if [[ ${user_login} == "" || ${user_pass} == "" || ${user_nicename} == "" || ${user_email} == "" ]]
+        then
+            mb_msg "Fields: user login, user pass, user nicename, user email should not to be empty" "MigBash - wp.add_user"
+            exit 0
+        fi
+        database=$(db_exists ${db_name})
+
+        if [[ "${database}" == "" ]]
+        then
+            echo "Provided database doesn't exists..."
+            exit 0
+        else
+            last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
+                INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, user_registered, user_activation_key, user_status, display_name)
+                VALUES (NULL, "${user_login}", MD5("${user_pass}"), "${user_nicename}",
+                        "${user_email}", "${user_url:=''}", "${user_registered:=$(date '+%F %H:%M:%S')}",
+                        "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:=${user_nicename}}");
+                SELECT LAST_INSERT_ID();
+ADD_USER`
+        fi
+    fi
 }
 
 # show help info
-add_user_help() {
-    echo -en "add_user \t - The module adds new user into wordpress database\r\n"
-    echo -en "         \t   user_login user_pass user_nicename user_email [user_url=''] [display_name='user_nicename'] [user_status='0'] [user_activation_key=''] [user_registered='current date']\r\n\r\n"
-}
+#add_user_help() {
+#    echo -en "add_user \t - The module adds new user into wordpress database\r\n"
+#    echo -en "         \t   user_login user_pass user_nicename user_email [user_url=''] [display_name='user_nicename'] [user_status='0'] [user_activation_key=''] [user_registered='current date']\r\n\r\n"
+#}

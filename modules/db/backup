@@ -1,6 +1,6 @@
 # Backup provided database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/27/2013)
+# Dec. 16, 2013 (last updated 12/28/2013)
 # ------------------------------------------------------
 
 # check whiptail and dialog
@@ -22,16 +22,16 @@ mb_msg() {
 
 # backup database
 backup() {
-    local db_name=""
+    local path=""
     local name=""
+    local db_name=""
+    local database=""
     local settings=${migbash_modules_path}${module}'/db.ini'
     local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
     local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
     local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
     local db_port=$(awk -F "=" '/db_port/ {print $2}' ${settings})
     local config_path=$(awk -F "=" '/path/ {print $2}' ${settings})
-    local database=""
-    local path=""
 
     # check whether user wants to use interactive mode or not
     if [[ $# != 0 ]]
@@ -77,11 +77,11 @@ backup() {
             mb_msg "Provided database doesn't exists..." "MigBash - db.backup"
             exit 0
         else
-            # if path to save backup has been provided then use it
-            # otherwise use default path from settings (db/db.ini)
             path=$(whiptail --inputbox "Input path to save the backup\nDefault path: ${config_path}" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
             name=${db_name}"_$(date '+%F_%H%M%S')"
 
+            # if path to save backup has been provided then use it
+            # otherwise use default path from settings (db/db.ini)
             mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path:=${config_path}}${name}.sql.gz
             echo ${path}${name}.sql.gz
             if [[ -f ${path:=${config_path}}${name}.sql.gz ]]
