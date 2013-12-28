@@ -31,6 +31,7 @@ backup() {
     local db_port=$(awk -F "=" '/db_port/ {print $2}' ${settings})
     local config_path=$(awk -F "=" '/path/ {print $2}' ${settings})
     local database=""
+    local path=""
 
     # check whether user wants to use interactive mode or not
     if [[ $# != 0 ]]
@@ -78,10 +79,12 @@ backup() {
         else
             # if path to save backup has been provided then use it
             # otherwise use default path from settings (db/db.ini)
-            local path=$(whiptail --inputbox "Input path to save the backup\nDefault path: ${config_path}" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+            path=$(whiptail --inputbox "Input path to save the backup\nDefault path: ${config_path}" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+            name=${db_name}"_$(date '+%F_%H%M%S')"
 
             mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path:=${config_path}}${name}.sql.gz
-            if [[ -f ${path}${name}.sql.gz ]]
+            echo ${path}${name}.sql.gz
+            if [[ -f ${path:=${config_path}}${name}.sql.gz ]]
             then
                 whiptail --title "MigBash - db.backup" --msgbox "Backup: ${name}.sql.gz\nhas been successfully created\nin: ${path} " 10 70 --clear
             else
