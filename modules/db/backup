@@ -52,6 +52,9 @@ backup() {
         if [[ $(check_gui) ]]
         then
             db_name=$(whiptail --inputbox "Input database name to backup" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             if [[ ${db_name} == "" ]]
             then
                 mb_msg "You must provide database name to make a backup" "MigBash - db.backup"
@@ -78,6 +81,9 @@ backup() {
             exit 0
         else
             path=$(whiptail --inputbox "Input path to save the backup\nDefault path: ${config_path}" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             name=${db_name}"_$(date '+%F_%H%M%S')"
 
             # if path to save backup has been provided then use it

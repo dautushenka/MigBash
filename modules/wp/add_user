@@ -62,14 +62,41 @@ ADD_USER`
         if [[ $(check_gui) ]]
         then
             user_login=$(whiptail --inputbox "User login:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_pass=$(whiptail --passwordbox "User password:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_nicename=$(whiptail --inputbox "User nicename:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_email=$(whiptail --inputbox "User email:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_url=$(whiptail --inputbox "User url [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             display_name=$(whiptail --inputbox "User diaplay name [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_status=$(whiptail --inputbox "User status [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_activation_key=$(whiptail --inputbox "User activation key [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
             user_registered=$(whiptail --inputbox "User registration date [can be empty]:" 8 78 --title "MigBash - wp.add_user" --clear 3>&1 1>&2 2>&3)
+            status=$?
+            if [[ ${status} != 0 ]]; then exit 0
+            fi
         else
             # neither whiptail nor dialog were found
             echo "User login:"
