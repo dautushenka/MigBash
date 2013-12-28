@@ -57,6 +57,13 @@ add_user() {
                         "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:=${user_nicename}}");
                 SELECT LAST_INSERT_ID();
 ADD_USER`
+        last_id=$(echo ${last_insert_id} | awk '{print $2}')
+            if [[ "${last_id}" == "" ]]
+            then
+                echo "Error: something has gone wrong while adding new user"
+            else
+                echo "New user has been added successfully!"
+            fi
         fi
     else
         if [[ $(check_gui) ]]
@@ -146,7 +153,7 @@ ADD_USER`
                 SELECT LAST_INSERT_ID();
 ADD_USER`
             last_id=$(echo ${last_insert_id} | awk '{print $2}')
-            if [[ "${last_id}" != "" ]]
+            if [[ "${last_id}" == "" ]]
             then
                 mb_msg "Error: something has gone wrong while adding new user" "MigBash - wp.add_user"
             else
