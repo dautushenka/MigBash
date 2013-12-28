@@ -145,6 +145,13 @@ ADD_USER`
                         "${user_activation_key:=''}", "${user_status:='0'}", "${display_name:=${user_nicename}}");
                 SELECT LAST_INSERT_ID();
 ADD_USER`
+            last_id=$(echo ${last_insert_id} | awk '{print $2}')
+            if [[ "${last_id}" != "" ]]
+            then
+                mb_msg "Error: something has gone wrong while adding new user" "MigBash - wp.add_user"
+            else
+                mb_msg "New user has been added successfully!" "MigBash - wp.add_user"
+            fi
         fi
     fi
 }
