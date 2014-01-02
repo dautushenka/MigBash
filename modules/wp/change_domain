@@ -1,15 +1,15 @@
 # Module to change domain names in wordpress database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/16/2013)
+# Dec. 16, 2013 (last updated 01/02/2014)
 # ------------------------------------------------------
 
 # change wp domain
 change_domain() {
-    local settings=${migbash_modules_path}${module}'/wordpress.ini'
-    local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
-    local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
-    local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
-    local db_name=$(awk -F "=" '/db_name/ {print $2}' ${settings})
+    local settings='modules/'${module}'/wordpress.ini'
+    local db_user=$(MigBash::getVal db_user ${settings})
+    local db_pass=$(MigBash::getVal db_pass ${settings})
+    local db_host=$(MigBash::getVal db_host ${settings})
+    local db_name=$(MigBash::getVal db_name ${settings})
 
     #local replace='http://bashnews.loc/'
     #local subject='http://154.210.72.140/'
