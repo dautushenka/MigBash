@@ -22,7 +22,7 @@ MigBash::init() {
     if [[ ! -f ${migbash_cfg} ]]
     then
         echo 'Config file not found...'
-        exit 0
+        exit 1
     else
         . ${migbash_cfg}
     fi

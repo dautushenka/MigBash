@@ -44,7 +44,7 @@ backup() {
         if [[ "${database}" == "" ]]
         then
             echo "Provided database doesn't exists..."
-            exit 0
+            exit 1
         else
             mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path:=${config_path}}${name}.sql.gz
         fi
@@ -53,12 +53,12 @@ backup() {
         then
             db_name=$(whiptail --inputbox "Input database name to backup" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
             status=$?
-            if [[ ${status} != 0 ]]; then exit 0
+            if [[ ${status} != 0 ]]; then exit 1
             fi
             if [[ ${db_name} == "" ]]
             then
                 mb_msg "You must provide database name to make a backup" "MigBash - db.backup"
-                exit 0
+                exit 1
             fi
         else
             # neither whiptail nor dialog were found
@@ -70,7 +70,7 @@ backup() {
         if [[ ${db_name} == "" ]]
         then
             echo "You must provide database name to make a backup"
-            exit 0
+            exit 1
         fi
 
         local database=$(db_exists ${db_name})
@@ -78,11 +78,11 @@ backup() {
         if [[ "${database}" == "" ]]
         then
             mb_msg "Provided database doesn't exists..." "MigBash - db.backup"
-            exit 0
+            exit 1
         else
             path=$(whiptail --inputbox "Input path to save the backup\nDefault path: ${config_path}" 8 78 --title "MigBash - db.backup" --clear 3>&1 1>&2 2>&3)
             status=$?
-            if [[ ${status} != 0 ]]; then exit 0
+            if [[ ${status} != 0 ]]; then exit 1
             fi
             name=${db_name}"_$(date '+%F_%H%M%S')"
 
@@ -113,7 +113,7 @@ restore() {
     if [[ ! -f ${path} ]]
     then
         echo -en "Please, provide the path to a dump file\r\n"
-        exit 0
+        exit 1
     fi
 
     mysql --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" "${db_name}" < ${path}
