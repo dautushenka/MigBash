@@ -15,7 +15,7 @@ migbash_cfg='migbash.cfg'
 migbash_modules_path='./modules/'
 
 # MigBash initialization
-migbash_init() {
+MigBash::init() {
     module=$1
     method=$2
     params=${@:3}
@@ -46,4 +46,4 @@ migbash_init() {
 }
 
 # run init
-migbash_init $*
+MigBash::init $*
