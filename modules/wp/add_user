@@ -21,6 +21,7 @@ mb_msg() {
 }
 
 # add new user
+# example: user_login user_pass user_nicename user_email [user_url=''] [display_name='user_nicename'] [user_status='0'] [user_activation_key=''] [user_registered='current date']
 add_user() {
     local settings='modules/'${module}'/wordpress.ini'
     local db_user=$(MigBash::getVal db_user ${settings})
@@ -47,7 +48,7 @@ add_user() {
 
         if [[ "${database}" == "" ]]
         then
-            echo "Provided database doesn't exists..."
+            echo -e "$(MigBash::color 'Provided database does not exists...\n' white red)"
             exit 1
         else
             last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
@@ -142,7 +143,7 @@ ADD_USER`
 
         if [[ "${database}" == "" ]]
         then
-            echo "Provided database doesn't exists..."
+            echo -e "$(MigBash::color 'Provided database does not exists...\n' white red)"
             exit 1
         else
             last_insert_id=`mysql --user="${db_user}" --password="${db_pass}" --host="${db_host}" ${db_name} <<ADD_USER
@@ -165,6 +166,5 @@ ADD_USER`
 
 # show help info
 add_user_help() {
-    echo -en "add_user \t - The module adds new user into wordpress database\r\n"
-    echo -en "         \t   user_login user_pass user_nicename user_email [user_url=''] [display_name='user_nicename'] [user_status='0'] [user_activation_key=''] [user_registered='current date']\r\n\r\n"
+    echo -e "$(MigBash::color add_user cyan black)$(MigBash::margin 16) - $(MigBash::color 'The module adds new user into wordpress database' white black)"
 }

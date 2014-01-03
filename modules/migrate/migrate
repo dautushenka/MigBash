@@ -1,6 +1,6 @@
 # migrate - implements simple migrations for your database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 12/17/2013)
+# Dec. 16, 2013 (last updated 01/03/2014)
 # ----------------------------------------------------------
 
 # check if table exists
@@ -50,22 +50,22 @@ start_migrate() {
     local folder_exists=$(folder_exists ${patches_path})
     if [[ ${folder_exists} -ne 0 ]]
     then
-        echo "Folder does not exists: '${patches_path}'"
+        echo -e "$(MigBash::color 'Folder does not exists: '${patches_path}'\n' white red)"
     else
         for PATCH in $(ls ${patches_path})
         do
             local patch_applied=$(is_applied "${PATCH}")
             if [[ ${patch_applied} -ne 0 ]]
             then
-                echo -en "${PATCH} - skipped \r\n"
+                echo -e "${PATCH} - skipped \n"
             else
                 $(apply_patch ${patches_path}${PATCH})
                 if [[ $? -ne 0 ]]
                 then
-                    echo -en '\E[47;31m'"\033[1m ${PATCH} - Failed...\033[0m \r\n"
+                    echo -e '\E[47;31m'"\033[1m ${PATCH} - Failed...\033[0m \n"
                 else
                     $(log_patch "${PATCH}")
-                    echo -en "\033[1;32m ${PATCH} - Ok!\033[0m\r\n"
+                    echo -e "\033[1;32m ${PATCH} - Ok!\033[0m\n"
                 fi
             fi
         done
@@ -73,11 +73,11 @@ start_migrate() {
 }
 
 migrate() {
-    local settings=${migbash_modules_path}${module}'/database.ini'
-    local db_user=$(awk -F "=" '/db_user/ {print $2}' ${settings})
-    local db_pass=$(awk -F "=" '/db_pass/ {print $2}' ${settings})
-    local db_host=$(awk -F "=" '/db_host/ {print $2}' ${settings})
-    local db_name=$(awk -F "=" '/db_name/ {print $2}' ${settings})
+    local settings='modules/'${module}'/database.ini'
+    local db_user=$(MigBash::getVal db_user ${settings})
+    local db_pass=$(MigBash::getVal db_pass ${settings})
+    local db_host=$(MigBash::getVal db_host ${settings})
+    local db_port=$(MigBash::getVal db_port ${settings})
 
     local migration_table='tbl_migrations'
     local date=`date '+%Y-%m-%d %H:%M:%S'`
@@ -92,4 +92,9 @@ migrate() {
        $(create_table ${migration_table})
        start_migrate
     fi
+}
+
+# show help info
+migrate_help() {
+    echo -e "$(MigBash::color migrate cyan black)$(MigBash::margin 16) - $(MigBash::color 'implements simple migrations for your database' white black)"
 }

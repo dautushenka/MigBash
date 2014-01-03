@@ -1,6 +1,6 @@
 # Backup provided database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 01/02/2014)
+# Dec. 16, 2013 (last updated 01/03/2014)
 # ------------------------------------------------------
 
 # check whiptail and dialog
@@ -43,7 +43,7 @@ backup() {
 
         if [[ "${database}" == "" ]]
         then
-            echo "Provided database doesn't exists..."
+            echo -e "$(MigBash::color 'Provided database does not exists...\n' white red)"
             exit 1
         else
             mysqldump --user="${db_user}" --password="${db_pass}" --host="${db_host=127.0.0.1}" --port="${db_port=3306}" ${db_name} -R -v | gzip > ${path:=${config_path}}${name}.sql.gz
@@ -69,7 +69,7 @@ backup() {
         # check if database name has been provided
         if [[ ${db_name} == "" ]]
         then
-            echo "You must provide database name to make a backup"
+            echo -e "$(MigBash::color 'You must provide database name to make a backup\n' white red)"
             exit 1
         fi
 
@@ -113,7 +113,7 @@ restore() {
 
     if [[ ! -f ${path} ]]
     then
-        echo -en "Please, provide the path to a dump file\r\n"
+        echo -e "$(MigBash::color 'Please, provide the path to a dump file\n' yellow black)"
         exit 1
     fi
 
@@ -122,5 +122,5 @@ restore() {
 
 # show help info
 backup_help() {
-    echo -en "backup \t - Backup provided database\r\n"
+    echo -e "$(MigBash::color backup cyan black)$(MigBash::margin 16) - Backup provided database"
 }

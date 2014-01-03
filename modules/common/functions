@@ -1,6 +1,6 @@
 # Common functions
 # Author: Alexander Kovalev
-# Jan. 02, 2014 (last updated 01/02/2014)
+# Jan. 02, 2014 (last updated 01/03/2014)
 # ------------------------------------------------------
 
 # Retrieve value for provided parameter
@@ -10,4 +10,27 @@ MigBash::getVal() {
     from=$2
     current_path=`pwd`
     echo $(awk -F "=" '/'${param}'/ {print $2}' ${current_path}/${from})
+}
+
+# Output colored text
+MigBash::color() {
+    declare -A color
+    text=$1
+    foreground=$2
+    background=$3
+    color[black]=0
+    color[red]=1
+    color[green]=2
+    color[yellow]=3
+    color[blue]=4
+    color[magenta]=5
+    color[cyan]=6
+    color[white]=7
+    echo $(tput setaf ${color[${foreground}]})$(tput setab ${color[${background}]})${text}$(tput sgr0)
+}
+
+# Shift position
+MigBash::margin() {
+    position=${1}
+    echo $(tput hpa ${position})
 }

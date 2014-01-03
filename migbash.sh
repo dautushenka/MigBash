@@ -25,7 +25,7 @@ MigBash::init() {
     params=${@:3}
     if [[ ! -f ${migbash_cfg} ]]
     then
-        echo 'Config file not found...'
+        echo -e "$(MigBash::color 'Config file not found...' white red)"
         exit 1
     else
         . ${migbash_cfg}
@@ -39,7 +39,7 @@ MigBash::init() {
     then
         if [[ ! -f ${migbash_modules_path}${module} ]]
         then
-            echo -en 'Module not found...\r\n'
+            echo -e "$(MigBash::color 'Module not found...' white red)"
         else
             . ${migbash_modules_path}${module}
             ${method} ${params}

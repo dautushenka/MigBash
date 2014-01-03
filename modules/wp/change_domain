@@ -1,6 +1,6 @@
 # Module to change domain names in wordpress database
 # Author: Alexander Kovalev
-# Dec. 16, 2013 (last updated 01/02/2014)
+# Dec. 16, 2013 (last updated 01/03/2014)
 # ------------------------------------------------------
 
 # change wp domain
@@ -24,5 +24,5 @@ WP_OPTIONS
 
 # show help info
 change_domain_help() {
-    echo -en "change_domain \t - Module to change domain names in wordpress database\r\n"
+    echo -e "$(MigBash::color change_domain cyan black)$(MigBash::margin 16) - $(MigBash::color 'Module to change domain names in wordpress database' white black)"
 }
