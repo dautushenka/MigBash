@@ -12,7 +12,7 @@
 migbash_cfg='migbash.cfg'
 
 # path to folder with modules
-migbash_modules_path='./modules/'
+migbash_modules_path=$(pwd)'/modules/'
 
 # path to folder with common modules
 # that will be loaded automatically
@@ -33,6 +33,34 @@ MigBash::init() {
         do
             . ${migbash_modules_common}${MODULE}
         done
+    fi
+
+    while getopts ":hm" opt
+    do
+        case $opt in
+            h)
+                echo -e "$(MigBash::color 'Usage:' yellow black)"
+                echo -e "$(MigBash::margin 6)./migbash [-m] [-h]"
+                echo -e "$(MigBash::margin 6)./migbash [module_name] [module_method] [options]..."
+                exit 0
+                ;;
+            m)
+                MigBash::modules >&2
+                exit 0
+                ;;
+            \?)
+                echo -e "$(MigBash::color 'Invalid option: '-$OPTARG white red)" >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ $# == 0 ]]
+    then
+        echo -e "$(MigBash::color 'Usage:' yellow black)"
+        echo -e "$(MigBash::margin 6)./migbash [-m] [-h]"
+        echo -e "$(MigBash::margin 6)./migbash [module_name] [module_method] [options]..."
+        exit 0
     fi
 
     if [[ ! -d ${migbash_modules_path}${module} ]]
